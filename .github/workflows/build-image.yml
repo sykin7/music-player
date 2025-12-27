@@ -3,9 +3,12 @@ name: Build and Push Docker Image
 on:
   push:
     branches: [ main ]
-    # 删除了 paths 限制，这样无论你改什么文件（包括 index.html），都会自动触发构建
+    paths-ignore:
+      - 'music/**'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - 'music/**'
   workflow_dispatch:
 
 jobs:
@@ -23,7 +26,6 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          # 这里建议加上 lowercase 转换，防止用户名有大写导致推送失败，不过暂时保持原样也可以
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -36,7 +38,6 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
-          # 核心修改在这里：
           tags: |
             ghcr.io/${{ github.repository_owner }}/music:latest
             ghcr.io/${{ github.repository_owner }}/music:${{ github.sha }}
